@@ -19,16 +19,21 @@ export default function Timer() {
   function timeSince(lastSeen, event) {
     event.preventDefault();
     const isNum = /^\d+$/.test(lastSeen);
+    let secondsPast = Math.floor((Date.now() - lastSeen) / 1000);
+    let minutesPast = (Math.floor((Date.now() - lastSeen) / 1000) / 60).toFixed(
+      0
+    );
 
     if (lastSeen > Date.now()) {
       alert("Please enter timestamp of the past!");
       setValue("");
-    } else if (isNum !== true) {
+    } else if (!isNum) {
       alert("Timestamp can only include numbers!");
       setValue("");
-    } else if (Math.floor((Date.now() - lastSeen) / 1000) < 60) {
+    } else if (secondsPast < 60) {
+      setTime(`${secondsPast} sec`);
       const intervalSec = setInterval(() => {
-        let secondsPast = Math.floor((Date.now() - lastSeen) / 1000);
+        secondsPast = Math.floor((Date.now() - lastSeen) / 1000);
         if (secondsPast < 60) {
           setTime(`${secondsPast} sec`);
         } else {
@@ -37,9 +42,7 @@ export default function Timer() {
         }
       }, 1000);
     } else {
-      setTime(
-        `${(Math.floor((Date.now() - lastSeen) / 1000) / 60).toFixed(0)} min `
-      );
+      setTime(`${minutesPast} min`);
       setInterval(() => {
         setTime(
           `${(Math.floor((Date.now() - lastSeen) / 1000) / 60).toFixed(0)} min `
@@ -50,15 +53,19 @@ export default function Timer() {
 
   return (
     <Container>
-      {!time ? (
-        <Title>Check how much time has passed since </Title>
-      ) : (
+      {time ? (
         <Title>This much time has passed</Title>
+      ) : (
+        <Title>Check how much time has passed since .. </Title>
       )}
 
       <Subtitle>{time}</Subtitle>
       <Form onSubmit={(event) => timeSince(value, event)}>
-        {!time ? (
+        {time ? (
+          <Button type="button" onClick={() => window.location.reload()}>
+            Reset
+          </Button>
+        ) : (
           <>
             <Input
               placeholder="Enter timestamp"
@@ -75,10 +82,6 @@ export default function Timer() {
               <Button type="submit">Check</Button>
             </div>
           </>
-        ) : (
-          <Button type="button" onClick={() => window.location.reload()}>
-            Reset
-          </Button>
         )}
       </Form>
     </Container>
